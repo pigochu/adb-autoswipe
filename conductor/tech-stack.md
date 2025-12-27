@@ -1,0 +1,1 @@
+# Tech Stack - AutoSwipe Bash\n\n## 核心技術\n- **腳本語言**: Bash (建議版本 4.0+)\n- **作業系統**: Ubuntu (WSL2)\n- **連線協議**: ADB Wireless Pairing & Connection\n\n## 外部依賴\n- **Platform-Tools**: `adb`\n  - 使用者需確保 `adb` 可在終端機直接調用。\n  - 主要指令：`adb pair`, `adb connect`, `adb disconnect`, `adb shell`.\n\n## 開發與運行環境\n- **環境變數**: 使用 `.env` 檔案管理座標與參數。\n- **終端機**: 支援 ANSI 逃逸字元的標準 Linux Terminal。
