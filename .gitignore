@@ -1,0 +1,8 @@
+*.log
+.android/
+.env
+devices.conf
+test_bin/
+bin_mock/
+*.tmp
+adb_disconnected_called

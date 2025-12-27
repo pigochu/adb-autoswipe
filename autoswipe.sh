@@ -1,40 +1,131 @@
 #!/bin/bash
+export ADB_USER_CONFIG_DIR="$(pwd)/.android"
 
-# Log functions
+DEVICES_FILE="devices.conf"
+
+# 日誌函數
 log_info() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"; }
 log_error() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >&2; }
 
-# Interactive ADB pairing and connection
-adb_pair_and_connect() {
-    read -p "請輸入手機的 IP:Port (例如 192.168.1.1:5555): " ADB_TARGET
-    read -p "請輸入配對碼 (Pairing Code): " PAIR_CODE
-    
-    log_info "正在配對 $ADB_TARGET..."
-    adb pair "$ADB_TARGET" "$PAIR_CODE"
-    
-    log_info "正在連線 $ADB_TARGET..."
-    adb connect "$ADB_TARGET"
+# 清理資源
+cleanup() {
+    echo ""
+    log_info "正在清理資源並關閉 ADB 連線..."
+    adb disconnect > /dev/null 2>&1
+    log_info "已安全退出。"
+    exit 0
 }
 
-# Load configurations from .env
-load_config() {
-    if [ ! -f .env ]; then
-        log_error ".env file not found."
+trap cleanup SIGINT SIGTERM
+
+# 獲取手機型號
+get_device_model() {
+    local model=$(adb shell getprop ro.product.model | tr -d '\r')
+    if [ -z "$model" ]; then
+        model="未知裝置"
+    fi
+    echo "$model"
+}
+
+# 更新或新增裝置紀錄
+update_device_record() {
+    local new_name="$1"
+    local new_ip="$2"
+    local temp_file="devices.conf.tmp"
+    local found=0
+
+    # 確保檔案存在
+    touch "$DEVICES_FILE"
+
+    while IFS='|' read -r name ip; do
+        if [ "$name" == "$new_name" ]; then
+            echo "$new_name|$new_ip" >> "$temp_file"
+            found=1
+        else
+            echo "$name|$ip" >> "$temp_file"
+        fi
+    done < "$DEVICES_FILE"
+
+    if [ $found -eq 0 ]; then
+        echo "$new_name|$new_ip" >> "$temp_file"
+    fi
+
+    mv "$temp_file" "$DEVICES_FILE"
+}
+
+# 智慧連線管理
+adb_smart_connect() {
+    echo "================================================"
+    echo " Wireless ADB 智慧連線 (支援動態 IP)"
+    echo "================================================"
+    
+    local options=()
+    local ips=()
+    if [ -f "$DEVICES_FILE" ]; then
+        while IFS='|' read -r name ip; do
+            options+=("$name")
+            ips+=("$ip")
+        done < "$DEVICES_FILE"
+    fi
+
+    echo "請選擇連線對象:"
+    echo "0) 新裝置配對 (New Pairing)"
+    for i in "${!options[@]}"; do
+        echo "$((i+1))) ${options[i]} (上次 IP: ${ips[i]})"
+    done
+    read -p "請選擇 (0-${#options[@]}): " choice
+
+    local target_full_addr=""
+    local target_ip=""
+
+    if [ "$choice" == "0" ]; then
+        # 新配對流程
+        read -p "請輸入配對視窗顯示的 IP:Port : " pair_addr
+        read -p "請輸入 6 位數配對碼 : " pair_code
+        log_info "執行配對中..."
+        adb pair "$pair_addr" "$pair_code"
+        
+        if [ $? -ne 0 ]; then
+            log_error "配對失敗。"
+            return 1
+        fi
+
+        echo ""
+        read -p "請輸入目前的連線 IP:Port (主畫面顯示): " target_full_addr
+    else
+        # 使用現有紀錄
+        local idx=$((choice-1))
+        local last_name="${options[idx]}"
+        local last_ip="${ips[idx]}"
+        
+        echo "--- 正在連線到 $last_name ---"
+        echo "提示: 上次使用的 IP 為 $last_ip"
+        read -p "請輸入目前手機顯示的 IP:Port : " target_full_addr
+    fi
+
+    # 提取 IP (去掉 Port)
+    target_ip="${target_full_addr%:*}$"
+    # 如果使用者只輸入了 Port (例如 :41235)，則補上上次的 IP (雖然目前邏輯要求輸入完整 IP:Port)
+    # 這裡維持要求輸入 IP:Port 的簡潔邏輯
+
+    log_info "正在連線到 $target_full_addr..."
+    adb connect "$target_full_addr"
+    
+    if adb devices | grep -q "$target_full_addr.*device"; then
+        local current_model=$(get_device_model)
+        log_info "連線成功！裝置型號: $current_model"
+        update_device_record "$current_model" "$target_ip"
+        log_info "紀錄檔已更新。"
+    else
+        log_error "連線失敗，請檢查資訊是否正確。"
         return 1
     fi
-    source .env
-    INTERVAL=${INTERVAL:-5}
-    return 0
 }
 
-# Entry points
-if [ "$1" == "--check-config" ]; then
-    load_config
-    exit $?
-elif [ "$1" == "--test-log" ]; then
-    log_info "Test log message"
+if [ "$1" == "--test-connection" ]; then
+    adb_smart_connect
     exit 0
-elif [ "$1" == "--test-connection" ]; then
-    adb_pair_and_connect
-    exit 0
+elif [ "$1" == "--test-cleanup" ]; then
+    log_info "測試模式：請按 Ctrl+C"
+    while true; do sleep 1; done
 fi
