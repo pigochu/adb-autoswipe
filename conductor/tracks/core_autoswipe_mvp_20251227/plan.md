@@ -9,14 +9,14 @@
   - [ ] Implement: 實現 `log_info`, `log_error` 函數。
 - [x] Task: Conductor - User Manual Verification 'Phase 1: 基礎架構與設定' (Protocol in workflow.md)
 
-## Phase 2: ADB 連線管理 (Connection Management)
+## Phase 2: ADB 連線管理 (Connection Management) [checkpoint: c5f1199]
 - [x] Task: 實現互動式配對與連線函數 (276f882)
   - [ ] Write Tests: 使用 Mock ADB 指令測試連線成功與失敗的流程。
   - [ ] Implement: 實現 `adb_pair_and_connect` 函數。
 - [x] Task: 實現 Ctrl+C 捕捉與清理邏輯 (9d9ccba)
   - [ ] Write Tests: 測試當接收到 SIGINT 時是否觸發斷開連線動作。
   - [ ] Implement: 使用 `trap` 捕捉訊號並執行清理。
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: ADB 連線管理' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: ADB 連線管理' (Protocol in workflow.md)
 
 ## Phase 3: 核心滑動邏輯 (Core Loop)
 - [ ] Task: 實現定時滑動與進度顯示
