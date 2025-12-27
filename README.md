@@ -50,7 +50,9 @@ nano .env
 | :--- | :--- | :--- |
 | `X1`, `Y1` | 滑動起始座標 | 500, 1500 |
 | `X2`, `Y2` | 滑動結束座標 | 500, 500 |
-| `INTERVAL` | 每次滑動的間隔秒數 | 5 |
+| `COORD_JITTER` | 座標隨機抖動範圍 (像素) | 20 |
+| `INTERVAL` | 每次滑動的基礎間隔秒數 | 5 |
+| `INTERVAL_JITTER` | 隨機額外等待上限 (秒) | 2 |
 | `TOTAL_DURATION` | 總執行秒數 (0 代表無限循環) | 0 |
 | `KILL_ADB_ON_EXIT` | 結束時是否關閉 ADB Server (true/false) | false |
 
