@@ -1,7 +1,7 @@
 # Track Plan: Core AutoSwipe MVP
 
 ## Phase 1: 基礎架構與設定 (Setup & Config)
-- [ ] Task: 建立 `.env.example` 與 `.env` 驗證邏輯
+- [~] Task: 建立 ".env.example" 與 ".env" 驗證邏輯
   - [ ] Write Tests: 撰寫測試確認腳本能正確識別缺失的環境變數。
   - [ ] Implement: 實現 `load_config` 函數，包含預設值設定。
 - [ ] Task: 實現基礎日誌與時間戳記功能
