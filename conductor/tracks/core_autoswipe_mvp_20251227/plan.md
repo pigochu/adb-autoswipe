@@ -19,7 +19,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: ADB 連線管理' (Protocol in workflow.md)
 
 ## Phase 3: 核心滑動邏輯 (Core Loop)
-- [ ] Task: 實現定時滑動與進度顯示
+- [x] Task: 實現定時滑動與進度顯示 (b7cf163)
   - [ ] Write Tests: 測試滑動指令的參數拼湊是否正確。
   - [ ] Implement: 實現 `perform_swipe` 與進度回饋。
 - [ ] Task: 實現時間檢查與自動結束
