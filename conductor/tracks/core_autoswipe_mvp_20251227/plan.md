@@ -1,13 +1,13 @@
 # Track Plan: Core AutoSwipe MVP
 
-## Phase 1: 基礎架構與設定 (Setup & Config)
+## Phase 1: 基礎架構與設定 (Setup ## Phase 1: 基礎架構與設定 (Setup & Config) Config) [checkpoint: 9849d69]
 - [~] Task: 建立 ".env.example" 與 ".env" 驗證邏輯
   - [ ] Write Tests: 撰寫測試確認腳本能正確識別缺失的環境變數。
   - [ ] Implement: 實現 `load_config` 函數，包含預設值設定。
 - [x] Task: 實現基礎日誌與時間戳記功能 (8b341c4)
   - [ ] Write Tests: 測試日誌輸出格式是否包含正確的時間戳記。
   - [ ] Implement: 實現 `log_info`, `log_error` 函數。
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: 基礎架構與設定' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: 基礎架構與設定' (Protocol in workflow.md)
 
 ## Phase 2: ADB 連線管理 (Connection Management)
 - [ ] Task: 實現互動式配對與連線函數
