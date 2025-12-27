@@ -26,3 +26,18 @@ test_existing_env() {
 
 # Run tests
 test_missing_env && test_existing_env
+
+# Test: Log format should include timestamp [YYYY-MM-DD HH:MM:SS]
+test_log_format() {
+    output=$(./autoswipe.sh --test-log 2>&1)
+    if [[ ! $output =~ \[[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2}\] ]]; then
+        echo "FAIL: Log output missing or has incorrect timestamp format"
+        echo "Output: $output"
+        return 1
+    fi
+    echo "PASS: Log output has correct timestamp format"
+    return 0
+}
+
+# Run log test
+test_log_format

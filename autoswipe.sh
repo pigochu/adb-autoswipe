@@ -1,20 +1,30 @@
 #!/bin/bash
 
+# Log a message with a timestamp
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
+}
+
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >&2
+}
+
 # Load configurations from .env
 load_config() {
     if [ ! -f .env ]; then
-        echo "Error: .env file not found."
+        log_error ".env file not found."
         return 1
     fi
     source .env
-    
-    # Set defaults if not provided
     INTERVAL=${INTERVAL:-5}
     return 0
 }
 
-# Main entry for config check
+# Entry points for testing
 if [ "$1" == "--check-config" ]; then
     load_config
     exit $?
+elif [ "$1" == "--test-log" ]; then
+    log_info "Test log message"
+    exit 0
 fi
