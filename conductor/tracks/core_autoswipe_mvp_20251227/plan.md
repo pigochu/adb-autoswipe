@@ -10,7 +10,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: 基礎架構與設定' (Protocol in workflow.md)
 
 ## Phase 2: ADB 連線管理 (Connection Management)
-- [ ] Task: 實現互動式配對與連線函數
+- [x] Task: 實現互動式配對與連線函數 (276f882)
   - [ ] Write Tests: 使用 Mock ADB 指令測試連線成功與失敗的流程。
   - [ ] Implement: 實現 `adb_pair_and_connect` 函數。
 - [ ] Task: 實現 Ctrl+C 捕捉與清理邏輯
