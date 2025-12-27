@@ -1,121 +1,109 @@
 #!/bin/bash
+
+# 強制指定 ADB 設定目錄
 export ADB_USER_CONFIG_DIR="$(pwd)/.android"
+export HOME="$(pwd)" 
 
 DEVICES_FILE="devices.conf"
 
-# 日誌函數
 log_info() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"; }
 log_error() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >&2; }
 
-# 清理資源
 cleanup() {
     echo ""
-    log_info "正在清理資源並關閉 ADB 連線..."
+    log_info "正在清理資源..."
     adb disconnect > /dev/null 2>&1
+    [[ "$KILL_ADB_ON_EXIT" =~ ^[YyTt1] ]] && adb kill-server > /dev/null 2>&1
     log_info "已安全退出。"
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM
 
-# 執行滑動動作
-perform_swipe() {
-    adb shell input swipe "$X1" "$Y1" "$X2" "$Y2"
-}
-
-# 獲取手機型號
 get_device_model() {
     local model=$(adb shell getprop ro.product.model | tr -d '\r')
     echo "${model:-未知裝置}"
 }
 
-# 更新紀錄檔
 update_device_record() {
     local new_name="$1"; local new_ip="$2"; local temp_file="devices.conf.tmp"
     touch "$DEVICES_FILE"
     while IFS='|' read -r name ip; do
-        if [ "$name" != "$new_name" ]; then echo "$name|$ip" >> "$temp_file"; fi
+        if [[ -n "$name" && "$name" != "$new_name" ]]; then echo "$name|$ip" >> "$temp_file"; fi
     done < "$DEVICES_FILE"
     echo "$new_name|$new_ip" >> "$temp_file"; mv "$temp_file" "$DEVICES_FILE"
 }
 
-# 智慧連線
 adb_smart_connect() {
+    log_info "正在初始化 ADB 環境..."
+    adb kill-server > /dev/null 2>&1; adb start-server > /dev/null 2>&1
     echo "================================================"
-    echo " Wireless ADB 智慧連線"
+    echo " Wireless ADB 智慧連線 (路徑: .android/)"
     echo "================================================"
     local options=(); local ips=()
-    if [ -f "$DEVICES_FILE" ]; then
-        while IFS='|' read -r name ip; do options+=("$name"); ips+=("$ip"); done < "$DEVICES_FILE"
-    fi
+    [ -f "$DEVICES_FILE" ] && while IFS='|' read -r name ip; do options+=("$name"); ips+=("$ip"); done < "$DEVICES_FILE"
     for i in "${!options[@]}"; do echo "$((i+1))) ${options[i]} (上次 IP: ${ips[i]})"; done
     echo "0) 新裝置配對"
     read -p "請選擇: " choice
-    local target_full_addr=""
+    local target=""
     if [ "$choice" == "0" ]; then
         read -p "配對 IP:Port: " p_addr; read -p "配對碼: " p_code
         adb pair "$p_addr" "$p_code" || return 1
-        read -p "連線 IP:Port: " target_full_addr
+        read -p "連線 IP:Port: " target
     else
         local idx=$((choice-1)); echo "提示: 上次 IP 為 ${ips[idx]}"
-        read -p "請輸入目前 IP:Port: " target_full_addr
+        read -p "請輸入目前 IP:Port: " target
     fi
-    log_info "連線中: $target_full_addr..."
-    adb connect "$target_full_addr"
-    if adb devices | grep -q "$target_full_addr.*device"; then
-        local model=$(get_device_model); update_device_record "$model" "${target_full_addr%:*}$"
+    log_info "連線中: $target..."
+    adb connect "$target"
+    if adb devices | grep -q "$target.*device"; then
+        update_device_record "$(get_device_model)" "$(echo "$target" | cut -d':' -f1)"
         return 0
     fi
     return 1
 }
 
-# 主循環邏輯
+load_config() {
+    [ ! -f .env ] && { log_error ".env 不存在"; return 1; }
+    unset X1 Y1 X2 Y2 INTERVAL TOTAL_DURATION KILL_ADB_ON_EXIT
+    source .env
+    CONF_X1=${X1:-500}; CONF_Y1=${Y1:-1500}; CONF_X2=${X2:-500}; CONF_Y2=${Y2:-500}
+    CONF_WAIT=${INTERVAL:-5}
+    CONF_MAX_TIME=${TOTAL_DURATION:-0}
+    [[ -z "$CONF_MAX_TIME" || ! "$CONF_MAX_TIME" =~ ^-?[0-9]+$ ]] && CONF_MAX_TIME=0
+    return 0
+}
+
 start_main_loop() {
-    local start_time=$(date +%s)
-    local count=0
-    log_info "開始自動滑動任務 (總時長: $TOTAL_DURATION 秒, 間隔: $INTERVAL 秒)"
+    echo ""; read -p ">>> 準備好後按 [Enter] 開始滑動 <<<"; echo ""
+    local start_time=$(date +%s); local count=0
+    local d_msg="$CONF_MAX_TIME 秒"; [ "$CONF_MAX_TIME" -le 0 ] && d_msg="無限"
+    
+    log_info "啟動參數確認:"
+    log_info "- 滑動座標: ($CONF_X1, $CONF_Y1) -> ($CONF_X2, $CONF_Y2)"
+    log_info "- 間隔時間: $CONF_WAIT 秒"
+    log_info "- 總執行時間: $d_msg"
     
     while true; do
-        local now=$(date +%s)
-        local elapsed=$((now - start_time))
+        local elapsed=$(($(date +%s) - start_time))
+        [ "$CONF_MAX_TIME" -gt 0 ] && [ "$elapsed" -ge "$CONF_MAX_TIME" ] && break
+        count=$((count + 1))
+        local ts="[$(date '+%Y-%m-%d %H:%M:%S')]"
         
-        if [ $elapsed -ge $TOTAL_DURATION ]; then
-            log_info "已達到設定時長 ($TOTAL_DURATION 秒)，任務結束。"
-            break
+        # \033[K 用於清除從游標位置到行尾的所有內容
+        if [ "$CONF_MAX_TIME" -gt 0 ]; then
+            echo -ne "$ts [進度] 次數: $count | 剩餘: $((CONF_MAX_TIME - elapsed)) 秒\033[K\r"
+        else
+            echo -ne "$ts [進度] 次數: $count | 剩餘: 無限 | 已用: ${elapsed} 秒\033[K\r"
         fi
         
-        count=$((count + 1))
-        local remaining=$((TOTAL_DURATION - elapsed))
-        
-        echo -ne "[$(date '+%Y-%m-%d %H:%M:%S')] [進度] 已滑動: $count 次 | 剩餘時間: $remaining 秒\r"
-        
-        perform_swipe
-        sleep "$INTERVAL"
+        adb shell input swipe "$CONF_X1" "$CONF_Y1" "$CONF_X2" "$CONF_Y2"
+        sleep "$CONF_WAIT"
     done
     cleanup
 }
 
-# 載入設定
-load_config() {
-    if [ ! -f .env ]; then log_error ".env 不存在"; return 1; fi
-    source .env
-    X1=${X1:-500}; Y1=${Y1:-1500}; X2=${X2:-500}; Y2=${Y2:-500}
-    INTERVAL=${INTERVAL:-5}; TOTAL_DURATION=${TOTAL_DURATION:-3600}
-    return 0
-}
-
-# 入口
-if [ "$1" == "--test-run" ]; then
-    load_config && start_main_loop; exit 0
-elif [ "$1" == "--test-log" ]; then
-    log_info "Test log"; exit 0
-elif [ "$1" == "--test-connection" ]; then
-    adb_smart_connect; exit 0
-elif [ "$1" == "--test-cleanup" ]; then
-    while true; do sleep 1; done
-elif [ "$1" == "--test-swipe" ]; then
-    load_config && perform_swipe; exit 0
-fi
-
-# 正常啟動流程
-load_config && adb_smart_connect && start_main_loop
+case "$1" in
+    "--check-config") load_config; exit $? ;;
+    *) load_config && adb_smart_connect && start_main_loop ;;
+esac
