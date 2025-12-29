@@ -3,7 +3,7 @@
 ## Phase 1: Logic Refactoring & Decoupling
 目標：將 `autoswipe.sh` 的核心邏輯與連線流程分離，並建立測試機制確保重構不破壞現有滑動功能。
 
-- [ ] **Task 1: 建立測試環境 (TDD Preparation)**
+- [x] **Task 1: 建立測試環境 (TDD Preparation)** 3005508
     - 建立 `tests/` 目錄。
     - 撰寫測試腳本以驗證 `load_config` 是否能正確解析 `.env`。
 - [ ] **Task 2: 重構配置加載 (load_config)**
