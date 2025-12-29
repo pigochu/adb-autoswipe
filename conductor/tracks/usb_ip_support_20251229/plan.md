@@ -16,7 +16,7 @@
 ## Phase 2: Enhanced Connection Management
 目標：實作智慧偵測邏輯，支援 USB (usbipd) 與直接 IP 連線。
 
-- [ ] **Task 1: 實作自動偵測邏輯**
+- [x] **Task 1: 實作自動偵測邏輯** 5d2d6e9
     - 撰寫函數檢查 `adb devices` 輸出。
     - 若偵測到單一裝置，直接跳過連線流程。
 - [ ] **Task 2: 實作直接 IP 連線 (Direct IP Connect)**
