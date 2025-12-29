@@ -132,7 +132,9 @@ start_main_loop() {
     cleanup
 }
 
-case "$1" in
-    "--check-config") load_config; exit $? ;; 
-    *) load_config && adb_smart_connect && start_main_loop ;; 
-esac
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    case "$1" in
+        "--check-config") load_config; exit $? ;; 
+        *) load_config && adb_smart_connect && start_main_loop ;; 
+    esac
+fi
