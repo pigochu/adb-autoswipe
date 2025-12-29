@@ -51,7 +51,7 @@ nano .env
    - `直接 IP 連線`：適用於**先前已配對成功**，僅需輸入當前 Port 即可連線。
 
 ### 方案 B：USB 連線 (WSL2 / usbipd)
-若您偏好透過實體 USB 線連接，請依序設定：
+**運作原理**：透過 `usbipd` 工具將 Windows 主機的實體 USB 訊號轉換為網路協定，轉發至 WSL2 虛擬機中。對 WSL2 而言，這台手機就像是直接插在 Linux 實體主機上的 USB 裝置，穩定度高且不需開啟無線偵錯。
 
 #### 1. Windows 端安裝 (管理員權限 PowerShell)
 ```powershell
@@ -60,23 +60,40 @@ winget install dorssel.usbipd-win
 winget install nickbeth.wsl-usb-manager
 ```
 
-#### 2. Windows 端首次設定範例
+#### 2. Windows 端首次設定與綁定
 ```powershell
-# 1. 啟動服務 (可設為 Manual 或 Automatic)
+# 1. 確保服務已啟動 (推薦設為 Manual)
 Set-Service usbipd -StartupType Manual
 Start-Service usbipd
 
-# 2. 找到手機 BUSID (以 1-3 為例)
+# 2. 列出所有 USB 裝置並找到手機的 BUSID
 usbipd list
-# 3. 綁定並強制連接
+
+# --- 真實案例輸出範例 ---
+# BUSID  VID:PID    DEVICE                                                        STATE
+# 1-3    04e8:6860  MyS23, SAMSUNG Mobile USB Modem, ADB Interface             Not shared
+# 1-6    04f3:0c6e  ELAN WBF Fingerprint Sensor                                   Not shared
+# -----------------------
+# 在此範例中，手機的 BUSID 為 1-3
+
+# 3. 綁定裝置 (只需做一次，若被佔用可加 --force)
 usbipd bind --busid 1-3 --force
-usbipd attach --wsl --busid 1-3
 ```
 
-#### 3. 疑難排錯
-- **偵測不到**：拔掉手機 USB 線，等待 3 秒後重新插上。
-- **權限問題**：執行 `sudo adb kill-server && sudo adb devices`。
-- **確認狀態**：在 WSL2 執行 `lsusb` 與 `adb devices` 應看到裝置序號且狀態為 `device`。
+#### 3. 日常連接流程
+1. **Windows 端**：執行 `usbipd attach --wsl --busid <BUSID>`。
+2. **WSL2 端**：
+   - 執行 `lsusb` 確認是否有看到裝置。
+   - 執行 `adb devices` 確認狀態。
+     - *注意：若顯示為空，請檢查手機「USB 偵錯」是否開啟，並點擊手機上的「允許連線」彈窗。*
+3. **啟動腳本**：執行 `./autoswipe.sh`，選單中將會出現 `[在線]` 裝置選項。
+
+#### 4. 疑難排錯：無法成功 Attach 時
+若遇到裝置被 Windows 佔用或 Attach 失敗，請嘗試以下強制重新連接步驟：
+1. **解除綁定**：`usbipd unbind --busid <BUSID>`
+2. **強制綁定**：`usbipd bind --busid <BUSID> --force`
+3. **實體重插**：拔掉手機 USB 線，等待約 3 秒後重新插上。
+4. **重新執行連接**：`usbipd attach --wsl --busid <BUSID>`
 
 ---
 
