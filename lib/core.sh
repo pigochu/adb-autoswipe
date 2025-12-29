@@ -49,6 +49,21 @@ check_connected_devices() {
     return 1
 }
 
+adb_direct_connect() {
+    local target=""
+    read -p "請輸入目前 IP:Port: " target
+    [ -z "$target" ] && return 1
+    
+    log_info "嘗試直接連線: $target..."
+    adb connect "$target"
+    if adb devices | grep -q "$target.*device"; then
+        log_info "連線成功!"
+        return 0
+    fi
+    log_error "連線失敗。"
+    return 1
+}
+
 start_main_loop() {
     echo ""; read -p ">>> 準備好後按 [Enter] 開始滑動 <<<"
     echo ""
