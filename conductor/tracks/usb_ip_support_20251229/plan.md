@@ -30,6 +30,6 @@
 
 - [x] **Task 1: 優化 Cleanup 機制** 1c8db60
     - 確保 `adb disconnect` 僅在必要時執行（不影響其他 ADB session）。
-- [ ] **Task 2: 全面整合測試**
+- [~] **Task 2: 全面整合測試**
     - 模擬 USB 插入、IP 連線與 WiFi 配對三種情境，確保功能無誤。
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Final Integration & Cleanup' (Protocol in workflow.md)
