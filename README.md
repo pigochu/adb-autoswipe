@@ -64,7 +64,23 @@ usbipd bind --busid <BUSID>
      - *若仍偵測不到，可嘗試 `sudo adb kill-server && sudo adb devices`。*
 3. **啟動腳本**：執行 `./autoswipe.sh`，選單中將會出現「在線裝置」選項。
 
-#### C. 停止連線與還原
+#### C. 疑難排錯：無法成功 Attach 時
+若遇到裝置被 Windows 佔用或 Attach 失敗，請嘗試以下強制重新連接步驟：
+1. **解除綁定**：`usbipd unbind --busid <BUSID>`
+2. **強制綁定**：`usbipd bind --busid <BUSID> --force`
+3. **實體重插**：拔掉手機 USB 線，等待約 3 秒後重新插上。
+4. **重新執行連接**：`usbipd attach --wsl --busid <BUSID>`
+
+#### D. 如何確認 USB 是否正常運作
+在 WSL2 終端機執行以下指令：
+- **檢查硬體層**：`lsusb`
+  - 應看到 `Samsung Electronics Co., Ltd Galaxy series` 或類似字樣。
+- **檢查軟體層**：`adb devices`
+  - 應看到裝置序號且狀態為 `device`。
+- **檢查連線日誌**：`dmesg | tail`
+  - 成功連接時應看到 `new high-speed USB device` 相關訊息。
+
+#### E. 停止連線與還原
 - **中斷連線 (還原給 Windows)**：`usbipd detach --busid <BUSID>`。
 - **停止服務**：`Stop-Service usbipd` (若暫時不想使用此功能)。
 
