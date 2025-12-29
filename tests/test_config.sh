@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# Test for load_config function
+# Test for load_config function - 安全測試版 (不更動 .env)
 
-# 模擬 .env 檔案
-cat <<EOF > .env.test
+# 建立臨時測試設定檔
+TEST_ENV=".env.test"
+cat <<EOF > "$TEST_ENV"
 X1=100
 Y1=200
 X2=300
@@ -15,15 +16,11 @@ COORD_Y_JITTER=5
 TOTAL_DURATION=60
 EOF
 
-# 暫時替換 .env
-mv .env .env.bak 2>/dev/null
-cp .env.test .env
-
-# Source autoswipe.sh (注意：這可能會觸發執行，除非我們傳入參數)
-# 這裡我們傳入 --check-config 來避免進入 main loop
+# 載入 autoswipe.sh (僅載入函數)
 source ./autoswipe.sh --check-config > /dev/null 2>&1
 
-load_config
+# 測試指定檔案載入
+load_config "$TEST_ENV"
 
 result=0
 
@@ -38,12 +35,11 @@ result=0
 [ "$CONF_Y_JITTER" == "5" ] || { echo "COORD_Y_JITTER failed: expected 5, got $CONF_Y_JITTER"; result=1; }
 [ "$CONF_MAX_TIME" == "60" ] || { echo "TOTAL_DURATION failed: expected 60, got $CONF_MAX_TIME"; result=1; }
 
-# 還原環境
-rm .env .env.test
-mv .env.bak .env 2>/dev/null
+# 清理測試檔
+rm "$TEST_ENV"
 
 if [ $result -eq 0 ]; then
-    echo "Config test passed!"
+    echo "Config test passed (Safe mode)!"
     exit 0
 else
     echo "Config test failed!"
