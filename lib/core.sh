@@ -64,6 +64,68 @@ adb_direct_connect() {
     return 1
 }
 
+# 需要傳入 DEVICES_FILE 路徑
+adb_auto_connect() {
+    local devices_file="$1"
+    log_info "正在初始化 ADB 環境..."
+    adb start-server > /dev/null 2>&1
+    
+    # 1. 自動偵測
+    local connected_device=$(check_connected_devices)
+    if [ $? -eq 0 ]; then
+        log_info "偵測到已連線裝置: $connected_device"
+        return 0
+    fi
+
+    echo "================================================"
+    echo " AutoSwipe 智慧連線 (路徑: .android/)"
+    echo "================================================"
+    
+    local options=(); local ips=()
+    [ -f "$devices_file" ] && while IFS='|' read -r name ip; do options+=("$name"); ips+=("$ip"); done < "$devices_file"
+    
+    for i in "${!options[@]}"; do echo "$((i+1))) ${options[i]} (上次 IP: ${ips[i]})"; done
+    local wifi_pair_opt=$(( ${#options[@]} + 1 ))
+    local direct_ip_opt=$(( ${#options[@]} + 2 ))
+    
+    echo "$wifi_pair_opt) WiFi 配對連線 (New Device)"
+    echo "$direct_ip_opt) 直接 IP 連線"
+    echo "q) 退出"
+    
+    read -p "請選擇: " choice
+    
+    if [[ "$choice" == "q" ]]; then exit 0; fi
+
+    if [[ "$choice" -le "${#options[@]}" && "$choice" -gt 0 ]]; then
+        local idx=$((choice-1))
+        local target=""
+        echo "提示: 上次 IP 為 ${ips[idx]}"
+        read -p "請輸入目前 IP:Port: " target
+        [ -z "$target" ] && return 1
+        adb connect "$target"
+    elif [[ "$choice" -eq "$wifi_pair_opt" ]]; then
+        read -p "配對 IP:Port: " p_addr; read -p "配對碼: " p_code
+        adb pair "$p_addr" "$p_code" || return 1
+        read -p "連線 IP:Port: " target
+        adb connect "$target"
+    elif [[ "$choice" -eq "$direct_ip_opt" ]]; then
+        adb_direct_connect
+        return $?
+    else
+        log_error "無效的選擇"
+        return 1
+    fi
+
+    # 驗證連線並更新紀錄
+    if adb devices | grep -q "device$"; then
+        local model=$(adb shell getprop ro.product.model | tr -d '\r')
+        # 這裡需要一個輔助函數來更新 devices.conf，或者在主腳本處理
+        log_info "連線成功: $model"
+        return 0
+    fi
+    return 1
+}
+
 start_main_loop() {
     echo ""; read -p ">>> 準備好後按 [Enter] 開始滑動 <<<"
     echo ""
