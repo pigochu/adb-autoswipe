@@ -52,11 +52,18 @@ Set-Service usbipd -StartupType Manual
 
 Start-Service usbipd
 
-# 2. 列出所有 USB 裝置並找到手機的 BUSID (例如 2-3)
+# 2. 列出所有 USB 裝置並找到手機的 BUSID
 usbipd list
 
-# 3. 綁定裝置 (只需做一次)
-usbipd bind --busid <BUSID>
+# --- 真實案例輸出範例 ---
+# BUSID  VID:PID    DEVICE                                                        STATE
+# 1-3    04e8:6860  Pigo S23, SAMSUNG Mobile USB Modem, ADB Interface             Not shared
+# 1-6    04f3:0c6e  ELAN WBF Fingerprint Sensor                                   Not shared
+# -----------------------
+# 在此範例中，手機的 BUSID 為 1-3
+
+# 3. 綁定裝置 (只需做一次，若被佔用可加 --force)
+usbipd bind --busid 1-3
 ```
 
 #### B. 日常連線流程
