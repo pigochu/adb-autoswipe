@@ -37,6 +37,18 @@ cleanup() {
     exit 0
 }
 
+check_connected_devices() {
+    # 取得狀態為 device 的裝置列表 (排除 header)
+    local devices=$(adb devices | grep -v "List of devices attached" | grep "device$" | cut -f1)
+    local count=$(echo "$devices" | grep -c .)
+    
+    if [ "$count" -eq 1 ]; then
+        echo "$devices"
+        return 0
+    fi
+    return 1
+}
+
 start_main_loop() {
     echo ""; read -p ">>> 準備好後按 [Enter] 開始滑動 <<<"
     echo ""
