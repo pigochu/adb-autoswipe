@@ -19,7 +19,7 @@
 - [x] **Task 1: 實作自動偵測邏輯** 5d2d6e9
     - 撰寫函數檢查 `adb devices` 輸出。
     - 若偵測到單一裝置，直接跳過連線流程。
-- [ ] **Task 2: 實作直接 IP 連線 (Direct IP Connect)**
+- [x] **Task 2: 實作直接 IP 連線 (Direct IP Connect)** acaefbe
     - 增加互動式選項，允許使用者輸入 IP:Port 並呼叫 `adb connect`。
 - [ ] **Task 3: 整合連線選單**
     - 修改主流程，優先執行自動偵測，無果後彈出選單（USB/IP/WiFi Pairing）。
