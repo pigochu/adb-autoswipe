@@ -1,10 +1,11 @@
-# AutoSwipe - Android Wireless ADB 自动化工具
+# AutoSwipe - Android Wi-Fi/USB 自動化工具
 
-一个極簡、無依賴的 Bash 腳本，專為 Linux/WSL2 環境設計，透過 Wireless ADB 實現手機螢幕的定時自動滑動。
+一個極簡、無依賴的 Bash 腳本，專為 Linux/WSL2 環境設計，透過 **Wi-Fi (Wireless ADB)** 或 **USB (usbipd)** 實現手機螢幕的定時自動滑動。
 
 ## 🌟 核心特色
 
-- **智慧連線管理**：自動記錄已配對的手機型號與上次使用的 IP，下次連線更快速。
+- **智慧連線管理**：自動偵測已透過 USB (usbipd) 或網路在線的裝置，並記錄已配對的手機型號與上次使用的 IP。
+- **雙模式支援**：同時相容傳統 Wi-Fi 無線偵錯與最新的 WSL2 USBipd 連接方式。
 - **動態 IP 支援**：專為 Wi-Fi 環境設計，即使手機 IP 變動也能輕鬆連線。
 - **本地化安全設定**：ADB 金鑰與設定存放在專案內的 `.android/` 目錄，不污染系統環境，且已透過 `.gitignore` 保護。
 - **彈性執行模式**：支援「指定總時長」或「無限循環」模式。
