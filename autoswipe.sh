@@ -4,10 +4,11 @@
 export ADB_USER_CONFIG_DIR="$(pwd)/.android"
 export HOME="$(pwd)" 
 
-DEVICES_FILE="devices.conf"
+# 載入核心模組
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/core.sh"
 
-log_info() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"; }
-log_error() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" >&2; }
+DEVICES_FILE="devices.conf"
 
 cleanup() {
     echo ""
@@ -62,21 +63,6 @@ adb_smart_connect() {
         return 0
     fi
     return 1
-}
-
-load_config() {
-    [ ! -f .env ] && { log_error ".env 不存在"; return 1; }
-    unset X1 Y1 X2 Y2 INTERVAL INTERVAL_JITTER TOTAL_DURATION COORD_X_JITTER COORD_Y_JITTER KILL_ADB_ON_EXIT
-    source .env
-    
-    CONF_X1=${X1:-500}; CONF_Y1=${Y1:-1500}; CONF_X2=${X2:-500}; CONF_Y2=${Y2:-500}
-    CONF_WAIT=${INTERVAL:-5}
-    CONF_WAIT_JITTER=${INTERVAL_JITTER:-0}
-    CONF_X_JITTER=${COORD_X_JITTER:-0}
-    CONF_Y_JITTER=${COORD_Y_JITTER:-0}
-    CONF_MAX_TIME=${TOTAL_DURATION:-0}
-    [[ -z "$CONF_MAX_TIME" || ! "$CONF_MAX_TIME" =~ ^-?[0-9]+$ ]] && CONF_MAX_TIME=0
-    return 0
 }
 
 start_main_loop() {
