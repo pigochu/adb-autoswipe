@@ -25,11 +25,11 @@
     - 修改主流程，優先執行自動偵測，無果後彈出選單（USB/IP/WiFi Pairing）。
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Enhanced Connection Management' (Protocol in workflow.md)
 
-## Phase 3: Final Integration & Cleanup
+## Phase 3: Final Integration & Cleanup [checkpoint: 40e8ecb]
 目標：整理程式碼，移除冗餘，並確保清理機制在所有模式下正常運作。
 
 - [x] **Task 1: 優化 Cleanup 機制** 1c8db60
     - 確保 `adb disconnect` 僅在必要時執行（不影響其他 ADB session）。
-- [~] **Task 2: 全面整合測試**
+- [x] **Task 2: 全面整合測試** 40e8ecb
     - 模擬 USB 插入、IP 連線與 WiFi 配對三種情境，確保功能無誤。
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Final Integration & Cleanup' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Final Integration & Cleanup' (Protocol in workflow.md)
