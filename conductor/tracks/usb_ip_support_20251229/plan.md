@@ -9,7 +9,7 @@
 - [x] **Task 2: 重構配置加載 (load_config)** 8771508
     - 將 `load_config` 最佳化並確保其可獨立於連線流程執行。
     - 驗證測試通過。
-- [ ] **Task 3: 重構滑動循環 (start_main_loop)**
+- [x] **Task 3: 重構滑動循環 (start_main_loop)** cacf853
     - 將滑動邏輯改為接受外部參數或純粹依賴全域變數，確保其在任何 ADB 連線建立後都能運作。
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Logic Refactoring & Decoupling' (Protocol in workflow.md)
 
