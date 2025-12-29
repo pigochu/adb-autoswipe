@@ -19,6 +19,34 @@
 - **OS**: Linux (在 Ubuntu 24 / WSL2 測試通過)
 - **依賴**: `adb` (Android Debug Bridge)
 
+## 🔌 WSL2 USB 連接 (可選)
+
+若您偏好透過 USB 連接手機而非 Wi-Fi，建議在 Windows 端安裝 **usbipd-win**。
+
+### 1. Windows 端安裝 (管理員權限 PowerShell)
+```powershell
+# 安裝核心引擎 (微軟官方推薦)
+winget install dorssel.usbipd-win
+
+# (可選) 安裝圖形化管理介面
+winget install nickbeth.wsl-usb-manager
+```
+*安裝完後，請重新啟動電腦或重啟 PowerShell 以生效。*
+
+### 2. WSL2 端安裝
+```bash
+sudo apt update
+sudo apt install linux-tools-virtual hwdata
+sudo update-alternatives --install /usr/local/bin/usbip usbip `ls /usr/lib/linux-tools/*/usbip | tail -n1` 20
+```
+
+### 3. 使用方法
+- **圖形介面**：啟動 `WSL USB Manager`，找到您的手機並點擊 **Attach**。
+- **命令行**：
+  1. `usbipd list` 找到手機的 BUSID (如 `2-3`)。
+  2. `usbipd attach --wsl --busid <BUSID>`。
+- 完成後，`./autoswipe.sh` 的選單中將會在「在線裝置」看到該手機。
+
 ## 🚀 快速開始
 
 ### 1. 安裝必要工具
