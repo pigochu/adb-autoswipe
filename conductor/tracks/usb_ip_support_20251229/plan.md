@@ -1,6 +1,6 @@
 # Plan: `autoswipe-refactor-and-ip-support`
 
-## Phase 1: Logic Refactoring & Decoupling
+## Phase 1: Logic Refactoring & Decoupling [checkpoint: 9daf2cd]
 目標：將 `autoswipe.sh` 的核心邏輯與連線流程分離，並建立測試機制確保重構不破壞現有滑動功能。
 
 - [x] **Task 1: 建立測試環境 (TDD Preparation)** 3005508
@@ -11,7 +11,7 @@
     - 驗證測試通過。
 - [x] **Task 3: 重構滑動循環 (start_main_loop)** cacf853
     - 將滑動邏輯改為接受外部參數或純粹依賴全域變數，確保其在任何 ADB 連線建立後都能運作。
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Logic Refactoring & Decoupling' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Logic Refactoring & Decoupling' (Protocol in workflow.md)
 
 ## Phase 2: Enhanced Connection Management
 目標：實作智慧偵測邏輯，支援 USB (usbipd) 與直接 IP 連線。
