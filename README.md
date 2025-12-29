@@ -44,8 +44,12 @@ sudo update-alternatives --install /usr/local/bin/usbip usbip `ls /usr/lib/linux
 
 #### A. 首次設定 (Windows 管理員權限 PowerShell)
 ```powershell
-# 1. 確保服務已啟動並設為自動
+# 1. 確保服務已啟動
+# 若希望開機自動執行：
 Set-Service usbipd -StartupType Automatic
+# 若希望手動啟動 (推薦)：
+Set-Service usbipd -StartupType Manual
+
 Start-Service usbipd
 
 # 2. 列出所有 USB 裝置並找到手機的 BUSID (例如 2-3)
